@@ -1,0 +1,4 @@
+<div class="heading">
+  <input type="textfield" id='name' placeholder="Name"></input>
+</div>
+<canvas></canvas>
