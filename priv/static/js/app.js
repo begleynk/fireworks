@@ -6,6 +6,7 @@ patriclesNum = 2;
            w = 1400;
            h = 900;
       colors = ['#f35d4f','#f36849','#c0d988','#6ddaf1','#f1e85b'];
+capture_rate = 100;
 
    userColor = colors[ Math.round( Math.random() * 3) ];
 var tempName = "User " + Math.floor(Math.random() * (0 - 10000000) + 10000000); 
@@ -35,50 +36,73 @@ function MyFactory(x, y, rgba){
   this.vx = Math.round( Math.random() * 3) - 1.5;
   this.vy = Math.round( Math.random() * 3) - 1.5;
   this.name = getName();
+  this.strength = 1000;
 }
-
    
 function draw(){
   ctx.clearRect(0, 0, w, h);
   ctx.globalCompositeOperation = 'lighter';
   for(var i = 0;i < particles.length; i++){
     var temp = particles[i];
-    var factor = 1;
+    var factor = temp.strength / 1000;
      
     for(var j = 0; j< particles.length; j++){
       
        var temp2 = particles[j];
        ctx.linewidth = 0.5;
       
-       if(temp.rgba == temp2.rgba && findDistance(temp, temp2)<50){
+       if(findDistance(temp, temp2)<50){
           ctx.strokeStyle = temp.rgba;
           ctx.beginPath();
           ctx.moveTo(temp.x, temp.y);
           ctx.lineTo(temp2.x, temp2.y);
           ctx.stroke();
           factor++;
+
+
+          if (temp.strength > temp2.strength) {
+            temp.strength += capture_rate;
+            temp2.strength -= capture_rate;
+          } else {
+            temp.strength += capture_rate;
+            temp2.strength -= capture_rate;
+          }
        }
     }
     
-    ctx.fillStyle = temp.rgba;
-    ctx.strokeStyle = temp.rgba;
-    
-    ctx.beginPath();
-    ctx.arc(temp.x, temp.y, temp.rad*factor, 0, Math.PI*2, true);
-    ctx.fill();
-    ctx.closePath();
-    
-    ctx.beginPath();
-    ctx.arc(temp.x, temp.y, (temp.rad+5)*factor, 0, Math.PI*2, true);
-    ctx.stroke();
-    ctx.closePath();
+    temp.strength -= 1;
 
-    ctx.font = "bold 12px Helvetica";
-    ctx.fillText(temp.name, temp.x - 30, temp.y - 20);
-    
+    if(temp.strength > 0) {
 
-    temp.x += temp.vx;
-    temp.y += temp.vy;
+      ctx.fillStyle = temp.rgba;
+      ctx.strokeStyle = temp.rgba;
+      
+      ctx.beginPath();
+      ctx.arc(temp.x, temp.y, temp.rad*factor, 0, Math.PI*2, true);
+      ctx.fill();
+      ctx.closePath();
+      
+      ctx.beginPath();
+      ctx.arc(temp.x, temp.y, (temp.rad+5)*factor, 0, Math.PI*2, true);
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.font = "bold 12px Helvetica";
+      ctx.fillText(temp.name, temp.x - 30, temp.y - 20);
+
+      ctx.font = "bold 12px Helvetica";
+      ctx.fillText("Strength: " + temp.strength, temp.x - 30, temp.y + 30);
+      
+
+      temp.x += temp.vx;
+      temp.y += temp.vy;
+
+    } else {
+
+      particles.splice(i,1);
+      i -= 1;
+
+    };
     
     if(temp.x > w)temp.x = 0;
     if(temp.x < 0)temp.x = w;
